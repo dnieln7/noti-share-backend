@@ -19,4 +19,4 @@ RUN go build
 EXPOSE 4444
 
 # Start
-CMD ["/noti-share"]
+CMD ["/noti-share-backend"]
