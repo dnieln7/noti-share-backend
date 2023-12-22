@@ -38,8 +38,6 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 		return
 	}
 
-	var invalidTokens []string
-
 	message := &messaging.Message{
 		Data: map[string]string{
 			"title":     body.Title,
@@ -61,10 +59,10 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 
 		if errString == "Requested entity was not found." || errString == "The registration token is not a valid FCM registration token" || errString == "exactly one of token, topic or condition must be specified" {
 			response := struct {
-				Status        string   `json:"status"`
-				Reason        string   `json:"reason"`
-				InvalidTokens []string `json:"invalid_tokens"`
-			}{Status: "Failure", Reason: "INVALID_TOKEN", InvalidTokens: invalidTokens}
+				Status       string `json:"status"`
+				Reason       string `json:"reason"`
+				InvalidToken string `json:"invalid_token"`
+			}{Status: "Failure", Reason: "INVALID_TOKEN", InvalidToken: body.Destination}
 
 			helper.ResponseJson(writer, 404, response)
 		} else {
