@@ -16,6 +16,7 @@ type PostNotificationBody struct {
 	Owner        string   `json:"owner"`
 	Origin       string   `json:"origin"`
 	Timestamp    uint64   `json:"timestamp"`
+	Version      uint8    `json:"version"`
 	Destinations []string `json:"destinations"`
 }
 
@@ -47,7 +48,7 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 				"owner":     body.Owner,
 				"origin":    body.Origin,
 				"timestamp": fmt.Sprintf("%d", body.Timestamp),
-				"version":   "1",
+				"version":   fmt.Sprintf("%d", body.Version),
 			},
 			Token: token,
 		}
