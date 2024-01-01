@@ -13,6 +13,7 @@ import (
 type PostNotificationBody struct {
 	Title       string `json:"title"`
 	Content     string `json:"content"`
+	OwnerId     string `json:"owner_id"`
 	Owner       string `json:"owner"`
 	Origin      string `json:"origin"`
 	Timestamp   uint64 `json:"timestamp"`
@@ -42,6 +43,7 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 		Data: map[string]string{
 			"title":     body.Title,
 			"content":   body.Content,
+			"owner_id":  body.OwnerId,
 			"owner":     body.Owner,
 			"origin":    body.Origin,
 			"timestamp": fmt.Sprintf("%d", body.Timestamp),
