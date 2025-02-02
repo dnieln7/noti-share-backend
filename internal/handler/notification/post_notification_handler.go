@@ -19,6 +19,7 @@ type PostNotificationBody struct {
 	Timestamp   uint64 `json:"timestamp"`
 	Version     uint8  `json:"version"`
 	Destination string `json:"destination"`
+	DestinationPlatform string `json:"destination_platform"`
 }
 
 func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, resources *server.Resources) {
@@ -39,19 +40,36 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 		return
 	}
 
-	message := &messaging.Message{
-		Data: map[string]string{
-			"title":     body.Title,
-			"content":   body.Content,
-			"owner_id":  body.OwnerId,
-			"owner":     body.Owner,
-			"origin":    body.Origin,
-			"timestamp": fmt.Sprintf("%d", body.Timestamp),
-			"version":   fmt.Sprintf("%d", body.Version),
-		},
-		Token: body.Destination,
+	data := map[string]string{
+		"title":     body.Title,
+		"content":   body.Content,
+		"owner_id":  body.OwnerId,
+		"owner":     body.Owner,
+		"origin":    body.Origin,
+		"timestamp": fmt.Sprintf("%d", body.Timestamp),
+		"version":   fmt.Sprintf("%d", body.Version),
 	}
 
+	var message *messaging.Message
+
+	if body.DestinationPlatform == "iOS" {
+		log.Println("Sending message to iOS...")
+
+		message = &messaging.Message{
+			APNS: buildAPNSConfig(body),
+			Notification: buildAPNSNotification(body),
+			Data: data,
+			Token: body.Destination,
+		}
+	} else {
+		log.Println("Sending message to Android...")
+
+		message = &messaging.Message{
+			Data: data,
+			Token: body.Destination,
+		}
+	}
+	
 	_, err = resources.FirebaseMessaging.Send(request.Context(), message)
 
 	if err != nil {
@@ -78,5 +96,26 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 		}
 	} else {
 		helper.ResponseNoContent(writer)
+	}
+}
+
+func buildAPNSConfig(body PostNotificationBody) *messaging.APNSConfig{
+	return &messaging.APNSConfig{
+		Payload: &messaging.APNSPayload{
+			Aps: &messaging.Aps{
+				Alert: &messaging.ApsAlert{
+					Title: body.Owner,
+					Body: body.Content,
+					SubTitle: body.Title,
+				},
+			},
+		},
+	}
+}
+
+func buildAPNSNotification(body PostNotificationBody) *messaging.Notification {
+	return &messaging.Notification{
+		Title: body.Title,
+		Body: body.Content,
 	}
 }
