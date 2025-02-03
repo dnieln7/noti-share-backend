@@ -108,6 +108,9 @@ func buildAPNSConfig(body PostNotificationBody) *messaging.APNSConfig {
 					Body:     body.Content,
 					SubTitle: body.Title,
 				},
+				CustomData: map[string]interface{}{
+					"mutable-content": 1,
+				},
 			},
 		},
 	}
