@@ -11,14 +11,14 @@ import (
 )
 
 type PostNotificationBody struct {
-	Title       string `json:"title"`
-	Content     string `json:"content"`
-	OwnerId     string `json:"owner_id"`
-	Owner       string `json:"owner"`
-	Origin      string `json:"origin"`
-	Timestamp   uint64 `json:"timestamp"`
-	Version     uint8  `json:"version"`
-	Destination string `json:"destination"`
+	Title               string `json:"title"`
+	Content             string `json:"content"`
+	OwnerId             string `json:"owner_id"`
+	Owner               string `json:"owner"`
+	Origin              string `json:"origin"`
+	Timestamp           uint64 `json:"timestamp"`
+	Version             uint8  `json:"version"`
+	Destination         string `json:"destination"`
 	DestinationPlatform string `json:"destination_platform"`
 }
 
@@ -56,20 +56,20 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 		log.Println("Sending message to iOS...")
 
 		message = &messaging.Message{
-			APNS: buildAPNSConfig(body),
+			APNS:         buildAPNSConfig(body),
 			Notification: buildAPNSNotification(body),
-			Data: data,
-			Token: body.Destination,
+			Data:         data,
+			Token:        body.Destination,
 		}
 	} else {
 		log.Println("Sending message to Android...")
 
 		message = &messaging.Message{
-			Data: data,
+			Data:  data,
 			Token: body.Destination,
 		}
 	}
-	
+
 	_, err = resources.FirebaseMessaging.Send(request.Context(), message)
 
 	if err != nil {
@@ -99,13 +99,13 @@ func PostNotificationHandler(writer http.ResponseWriter, request *http.Request, 
 	}
 }
 
-func buildAPNSConfig(body PostNotificationBody) *messaging.APNSConfig{
+func buildAPNSConfig(body PostNotificationBody) *messaging.APNSConfig {
 	return &messaging.APNSConfig{
 		Payload: &messaging.APNSPayload{
 			Aps: &messaging.Aps{
 				Alert: &messaging.ApsAlert{
-					Title: body.Owner,
-					Body: body.Content,
+					Title:    body.Owner,
+					Body:     body.Content,
 					SubTitle: body.Title,
 				},
 			},
@@ -116,6 +116,6 @@ func buildAPNSConfig(body PostNotificationBody) *messaging.APNSConfig{
 func buildAPNSNotification(body PostNotificationBody) *messaging.Notification {
 	return &messaging.Notification{
 		Title: body.Title,
-		Body: body.Content,
+		Body:  body.Content,
 	}
 }
